@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h1>Guestbook</h1>
+    <h1>Guestbook v2</h1>
 
     <form method="POST" action="/entries">
         @csrf
