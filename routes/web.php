@@ -28,4 +28,3 @@ Route::get('/health', function () {
         return response('DB DOWN', 500)->header('Content-Type', 'text/plain');
     }
 });
-oops(
