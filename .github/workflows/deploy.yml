@@ -1,0 +1,43 @@
+name: Deploy
+
+on:
+  push:
+    branches: [deploy-assignment]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  APP_DOMAIN: hamza-app.duckdns.org
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Copy code to app-vm
+        run: |
+          rsync -rlz \
+            --exclude='/.git' --exclude='/.github' --exclude='/.env' \
+            --exclude='/vendor' --exclude='/storage' --exclude='/bootstrap/cache' \
+            ./ "$DEPLOY_USER@$DEPLOY_HOST:/var/www/guestbook/"
+
+      - name: Install, migrate, rebuild caches
+        run: ssh "$DEPLOY_USER@$DEPLOY_HOST" "bash /var/www/guestbook/scripts/deploy.sh"
+
+      - name: Health check
+        run: curl -fsS --retry 5 --retry-delay 3 --retry-all-errors "http://$APP_DOMAIN/health" | grep -qx OK
