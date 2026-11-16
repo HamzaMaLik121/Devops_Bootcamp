@@ -14,7 +14,7 @@ Route::get('/', function () {
 Route::post('/entries', function (Request $request) {
     $data = $request->validate([
         'name' => 'required|max:100',
-        'message' => 'required|max:1000',
+        'message' => 'required|max:1000', 'city' => 'nullable|max:100',
     ]);
     Entry::create($data);
     return redirect('/');

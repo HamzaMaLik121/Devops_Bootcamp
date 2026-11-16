@@ -25,14 +25,14 @@
         <textarea name="message" rows="3">{{ old('message') }}</textarea>
         @error('message') <div class="error">{{ $message }}</div> @enderror
 
-        <button type="submit">Sign guestbook</button>
+        <label>City</label><input type="text" name="city"><button type="submit">Sign guestbook</button>
     </form>
 
     <h2>Entries ({{ $entries->count() }})</h2>
     @foreach ($entries as $entry)
         <div class="entry">
             <strong>{{ $entry->name }}</strong>
-            <small>{{ $entry->created_at }}</small>
+            <small>{{ $entry->created_at }}</small> <em>{{ $entry->city }}</em>
             <p>{{ $entry->message }}</p>
         </div>
     @endforeach
